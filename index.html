@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebRTC Demo</title>
+  </head>
+  <body>
+    <h2>1. Start your Webcam</h2>
+    <div class="videos">
+      <span>
+        <h3>Local Stream</h3>
+        <video id="webcamVideo" autoplay playsinline></video>
+      </span>
+      <span>
+        <h3>Remote Stream</h3>
+        <video id="remoteVideo" autoplay playsinline></video>
+      </span>
+    </div>
+
+    <button id="webcamButton">Start webcam</button>
+    <h2>2. Create a new Call</h2>
+    <button id="callButton">Create Call (offer)</button>
+
+    <h2>Enter Offer SDP</h2>
+    <input id="offerInput" />
+    <!-- <button id="callAnswer">Anser</button> -->
+    <button id="answerButton">Answer</button>
+    <!-- ---------------------- -->
+    <h2>Enter Answer SDP</h2>
+    <input id="answerInput" />
+    <button id="acceptButton">accept answer</button>
+
+    <h2>Test Send Message:</h2>
+    <input type="text" id="message" />
+    <button id="messageButton">Send</button>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
