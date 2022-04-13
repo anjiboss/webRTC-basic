@@ -22,11 +22,11 @@ const messageButton = document.getElementById(
 ) as HTMLButtonElement;
 
 const localConnection = new RTCPeerConnection({
-  // iceServers: [
-  //   {
-  //     urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
-  //   },
-  // ],
+  iceServers: [
+    {
+      urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
+    },
+  ],
 });
 
 webcamButton.onclick = async () => {
