@@ -1,3 +1,10 @@
+import io from "socket.io-client";
+import { server_uri } from "./ultis/constant";
+export const socket = io(server_uri, { reconnection: false });
+
+let caller: undefined | string;
+let g_to: undefined | string;
+
 let localStream: MediaStream | null = null;
 let remoteStream: MediaStream | null = null;
 
@@ -27,12 +34,12 @@ const localConnection = new RTCPeerConnection({
       urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
     },
   ],
+  iceCandidatePoolSize: 10,
 });
 
 webcamButton.onclick = async () => {
   localStream = await navigator.mediaDevices.getUserMedia({
     video: true,
-    audio: true,
   });
   remoteStream = new MediaStream();
 
@@ -52,12 +59,24 @@ webcamButton.onclick = async () => {
   remoteVideo.srcObject = remoteStream;
 };
 
-// Set up save SDP as Local Description
-localConnection.onicecandidate = (_e) => {
-  console.log(JSON.stringify(localConnection.localDescription));
-  navigator.clipboard.writeText(
+//ANCHOR New ICECandidata Event Set up save SDP as Local Description
+localConnection.onicecandidate = (_) => {
+  console.log(
+    "NEW CANDIDATE",
     JSON.stringify(localConnection.localDescription)
   );
+  console.log("1", localConnection.connectionState);
+  if (localConnection.localDescription?.type === "answer") {
+    socket.emit("answering", {
+      answer: localConnection.localDescription,
+    });
+  } else if (localConnection.localDescription?.type === "offer") {
+    socket.emit("calling", {
+      to: g_to,
+      offer: localConnection.localDescription,
+      from: caller,
+    });
+  }
 };
 
 // Create Channel for sending things
@@ -70,34 +89,58 @@ sendChannel.onmessage = (e) => {
 sendChannel.onopen = () => console.log("open!!!! 1");
 sendChannel.onclose = () => console.log("closed!!!!!!");
 
-callButton.onclick = () => {
-  localConnection
-    .createOffer()
-    .then((o) => localConnection.setLocalDescription(o))
-    .then(() => {
-      console.log("seted local description");
+// ANCHOR Create Offer
+export const createOffer = (to?: string) => {
+  localConnection.createOffer().then(async (o) => {
+    localConnection.setLocalDescription(o).then(() => {
+      console.log("OFFER", JSON.stringify(o));
+      if (to) {
+        g_to = to;
+        socket.emit("calling", { to, offer: o, from: caller });
+      }
     });
+  });
 };
+callButton.onclick = () => createOffer();
 
-answerButton.onclick = async () => {
-  const offer = JSON.parse(offerInput.value);
+// ANCHOR Answer Call
+const answerCall = async (off?: RTCSessionDescriptionInit) => {
+  const offer = off || JSON.parse(offerInput.value);
   localConnection
     .setRemoteDescription(offer)
     .then((_) => console.log("setted remote description"));
   //create answer
-  await localConnection
-    .createAnswer()
-    .then((a) => localConnection.setLocalDescription(a))
-    .then((_) => {
-      console.log(JSON.stringify(localConnection.localDescription));
-    });
+  if (!["connected"].includes(localConnection.connectionState))
+    await localConnection
+      .createAnswer()
+      .then((a) => localConnection.setLocalDescription(a))
+      .then((_) => {
+        console.log(
+          "THIS IS ANSWER SDP",
+          JSON.stringify(localConnection.localDescription)
+        );
+        socket.emit("answering", {
+          answer: localConnection.localDescription,
+        });
+      });
+};
+answerButton.onclick = () => {
+  answerCall();
+};
+
+// ANCHOR  Accepting Call
+const acceptCall = (answer?: string) => {
+  const answerSDP = answer || JSON.parse(answerInput.value);
+
+  if (!["new", "connected"].includes(localConnection.connectionState)) {
+    localConnection
+      .setRemoteDescription(answerSDP)
+      .then((_) => console.log("remote description setted"));
+  }
 };
 
 acceptButton.onclick = () => {
-  const answerSDP = JSON.parse(answerInput.value);
-  localConnection
-    .setRemoteDescription(answerSDP)
-    .then((_) => console.log("done"));
+  acceptCall();
 };
 
 let _receivedChannel: any = null;
@@ -116,3 +159,24 @@ messageButton.onclick = () => {
   console.log("sending...", message);
   _receivedChannel.send("message: " + message);
 };
+
+socket.on(
+  "incoming-call",
+  ({ offer }: { offer: RTCSessionDescriptionInit }) => {
+    console.log("incoming call", { offer });
+    answerCall(offer);
+  }
+);
+
+socket.on("accepting-call", ({ answer }) => {
+  acceptCall(answer);
+});
+
+socket.on("registered", ({ username, id }) => {
+  caller = username;
+  console.log(id);
+});
+
+socket.on("log", (msg) => {
+  console.log(msg);
+});

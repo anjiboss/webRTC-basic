@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      type="text/javascript"
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+    ></script>
     <title>WebRTC Demo</title>
   </head>
   <body>
@@ -36,6 +40,14 @@
     <input type="text" id="message" />
     <button id="messageButton">Send</button>
 
+    <form id="register">
+      <input type="text" id="username" />
+      <input type="submit" value="Register" />
+    </form>
+
+    <section id="user-container"></section>
+
     <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/register.ts"></script>
   </body>
 </html>
