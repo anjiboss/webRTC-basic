@@ -23,7 +23,7 @@
       </span>
     </div>
 
-    <button id="webcamButton">Start webcam</button>
+    <button id="webcamButton" disabled>Start webcam</button>
     <h2>2. Create a new Call</h2>
     <button id="callButton">Create Call (offer)</button>
 
@@ -46,6 +46,20 @@
     </form>
 
     <section id="user-container"></section>
+
+    <section>
+      <button id="clear">Clear</button>
+    </section>
+    <div class="video">
+      <button id="screen">Get Screen</button>
+      <video
+        autoplay
+        id="screenVideo"
+        width="640"
+        height="480"
+        style="object-fit: contain"
+      ></video>
+    </div>
 
     <script type="module" src="/src/main.ts"></script>
     <script type="module" src="/src/register.ts"></script>

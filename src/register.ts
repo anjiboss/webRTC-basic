@@ -41,3 +41,7 @@ socket.on("logged-in", ({ username }) => {
 	`);
   callEvent();
 });
+
+$("#btn").on("click", () => {
+  socket.emit("clear");
+});

@@ -27,6 +27,48 @@ const acceptButton = document.getElementById(
 const messageButton = document.getElementById(
   "messageButton"
 ) as HTMLButtonElement;
+// const screenVideo = document.getElementById("screenVideo") as HTMLVideoElement;
+
+// SECTION Send screen instead
+var displayMediaOptions: DisplayMediaStreamConstraints = {
+  video: {},
+  audio: false,
+};
+
+async function startCapture(displayMediaOptions: any) {
+  let captureStream = null;
+
+  try {
+    captureStream = await navigator.mediaDevices.getDisplayMedia(
+      displayMediaOptions
+    );
+  } catch (err) {
+    console.error("Error: " + err);
+  }
+  return captureStream;
+}
+
+$("#screen").on("click", async () => {
+  localStream = await startCapture(displayMediaOptions);
+
+  remoteStream = new MediaStream();
+
+  // Push tracks from local stream to peer connection
+  localStream!.getTracks().forEach((track) => {
+    localConnection.addTrack(track, localStream!);
+  });
+
+  // Pull tracks from remote stream, add to video stream
+  localConnection.ontrack = (event) => {
+    event.streams[0].getTracks().forEach((track) => {
+      remoteStream!.addTrack(track);
+    });
+  };
+
+  webcamVideo.srcObject = localStream;
+  remoteVideo.srcObject = remoteStream;
+});
+// !SECTION
 
 const localConnection = new RTCPeerConnection({
   iceServers: [
@@ -44,7 +86,7 @@ webcamButton.onclick = async () => {
   remoteStream = new MediaStream();
 
   // Push tracks from local stream to peer connection
-  localStream.getTracks().forEach((track) => {
+  localStream!.getTracks().forEach((track) => {
     localConnection.addTrack(track, localStream!);
   });
 
