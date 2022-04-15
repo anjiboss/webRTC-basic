@@ -73,15 +73,12 @@ $("#screen").on("click", async () => {
 const localConnection = new RTCPeerConnection({
   iceServers: [
     {
-      urls: ["stun:ntk-turn-2.xirsys.com"],
-    },
-    {
       username:
         "GsnC6VY7KrUCZexx-odI48sFov5RtDGJnqokEg46R38Y9CBno4joO6BdKoiFjzzWAAAAAGJX3GdhbmppZGV2",
       credential: "983cc43a-bbcd-11ec-bc58-0242ac120004",
       urls: [
-        "turn:ntk-turn-2.xirsys.com:80?transport=udp",
-        "turn:ntk-turn-2.xirsys.com:3478?transport=udp",
+        // "turn:ntk-turn-2.xirsys.com:80?transport=udp",
+        // "turn:ntk-turn-2.xirsys.com:3478?transport=udp",
         "turn:ntk-turn-2.xirsys.com:80?transport=tcp",
         "turn:ntk-turn-2.xirsys.com:3478?transport=tcp",
         "turns:ntk-turn-2.xirsys.com:443?transport=tcp",
