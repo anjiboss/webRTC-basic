@@ -195,6 +195,7 @@ const acceptCall = (answer?: string) => {
 };
 
 acceptButton.onclick = () => {
+  console.log('accept button clicked')
   acceptCall();
 };
 
