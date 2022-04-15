@@ -114,10 +114,11 @@ webcamButton.onclick = async () => {
 };
 
 //ANCHOR New ICECandidata Event Set up save SDP as Local Description
-localConnection.onicecandidate = (_) => {
+localConnection.onicecandidate = (e) => {
   console.log(
     "NEW CANDIDATE",
-    JSON.stringify(localConnection.localDescription)
+    JSON.stringify(e.candidate?.toJSON())
+    // JSON.stringify(localConnection.localDescription)
   );
   console.log("1", localConnection.connectionState);
   if (localConnection.localDescription?.type === "answer") {
@@ -150,7 +151,7 @@ export const createOffer = (to?: string) => {
       console.log("OFFER", JSON.stringify(o));
       if (to) {
         g_to = to;
-        socket.emit("calling", { to, offer: o, from: caller });
+        // socket.emit("calling", { to, offer: o, from: caller });
       }
     });
   });
@@ -164,7 +165,7 @@ const answerCall = async (off?: RTCSessionDescriptionInit) => {
     .setRemoteDescription(offer)
     .then((_) => console.log("setted remote description"));
   //create answer
-  if (!["connected"].includes(localConnection.connectionState))
+  if ((localConnection.connectionState) !== 'connected')
     await localConnection
       .createAnswer()
       .then((a) => localConnection.setLocalDescription(a))
@@ -196,7 +197,7 @@ const acceptCall = (answer?: string) => {
 
 acceptButton.onclick = () => {
   console.log('accept button clicked')
-  acceptCall();
+  // acceptCall();
 };
 
 let _receivedChannel: any = null;
@@ -225,6 +226,7 @@ socket.on(
 );
 
 socket.on("accepting-call", ({ answer }) => {
+  console.log('accepting call')
   acceptCall(answer);
 });
 
