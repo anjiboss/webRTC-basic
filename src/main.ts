@@ -140,7 +140,7 @@ const sendChannel = localConnection.createDataChannel("sendChannel");
 sendChannel.onmessage = (e) => {
   console.log("messsage received!!!" + e.data, e);
 };
-sendChannel.onopen = () => console.log("open!!!! 1");
+// sendChannel.onopen = () => console.log("open!!!! 1");
 sendChannel.onclose = () => console.log("closed!!!!!!");
 
 // ANCHOR Create Offer
@@ -179,6 +179,7 @@ const answerCall = async (off?: RTCSessionDescriptionInit) => {
       });
 };
 answerButton.onclick = () => {
+  console.log('answer button clicked')
   answerCall();
 };
 
@@ -234,3 +235,7 @@ socket.on("registered", ({ username, id }) => {
 socket.on("log", (msg) => {
   console.log(msg);
 });
+
+localConnection.onconnectionstatechange = () => {
+  console.log("%c connection state change " , "background: red; color: white",  localConnection.connectionState)
+}
